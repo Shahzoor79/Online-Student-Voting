@@ -1,0 +1,18 @@
+{
+  "name": "EduVote — Student Election Portal",
+  "short_name": "EduVote",
+  "description": "Offline-capable student election voting system",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='24' fill='%230a0a0f'/><circle cx='96' cy='96' r='70' stroke='%23f5c842' stroke-width='6' fill='none'/><path d='M68 96 L88 116 L124 80' stroke='%23f5c842' stroke-width='8' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
