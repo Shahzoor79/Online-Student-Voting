@@ -2,226 +2,265 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EduVote — Student Election Portal</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoteHub — Student Election Portal</title>
+
+  <!-- PWA Meta -->
+  <meta name="description" content="Secure online student voting platform. Vote from anywhere, even offline." />
+  <meta name="theme-color" content="#0f0f1a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="VoteHub" />
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0a0a0f" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- NETWORK STATUS BAR -->
-  <div id="networkBar" class="network-bar offline-bar hidden">
-    <span class="bar-dot"></span>
-    <span id="networkMsg">You're offline — votes saved locally and will sync when reconnected.</span>
+  <!-- Install Banner -->
+  <div id="install-banner" class="install-banner hidden">
+    <div class="install-banner__inner">
+      <span class="install-banner__icon">📲</span>
+      <div>
+        <strong>Install VoteHub</strong>
+        <p>Add to your home screen for instant access — works offline too!</p>
+      </div>
+      <button id="install-btn" class="btn btn--accent btn--sm">Install</button>
+      <button id="install-dismiss" class="install-dismiss">✕</button>
+    </div>
   </div>
 
-  <!-- HEADER -->
-  <header class="site-header">
-    <div class="header-inner">
-      <div class="logo">
-        <div class="logo-mark">
-          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M10 18 L16 24 L26 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <span class="logo-text">EduVote</span>
+  <!-- Offline Toast -->
+  <div id="offline-toast" class="toast toast--offline hidden">
+    <span>📡</span> You're offline — votes will sync when reconnected.
+  </div>
+  <div id="online-toast" class="toast toast--online hidden">
+    <span>✅</span> Back online — syncing pending votes…
+  </div>
+
+  <!-- App Shell -->
+  <div class="app">
+
+    <!-- Sidebar Nav -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__brand">
+        <div class="sidebar__logo">V</div>
+        <span class="sidebar__name">VoteHub</span>
       </div>
-      <nav class="header-nav">
-        <button class="nav-btn active" data-page="vote">Vote</button>
-        <button class="nav-btn" data-page="results">Results</button>
-        <button class="nav-btn" data-page="admin">Admin</button>
+      <nav class="sidebar__nav">
+        <a href="#" class="nav-item active" data-page="elections">
+          <span class="nav-icon">🗳️</span> Elections
+        </a>
+        <a href="#" class="nav-item" data-page="results">
+          <span class="nav-icon">📊</span> Results
+        </a>
+        <a href="#" class="nav-item" data-page="history">
+          <span class="nav-icon">📜</span> My Votes
+        </a>
+        <a href="#" class="nav-item" data-page="admin">
+          <span class="nav-icon">⚙️</span> Admin
+        </a>
       </nav>
-      <div class="sync-status" id="syncStatus">
-        <span class="sync-dot synced"></span>
-        <span class="sync-label" id="syncLabel">Synced</span>
-      </div>
-    </div>
-  </header>
-
-  <!-- MAIN CONTENT -->
-  <main class="main-content">
-
-    <!-- ===== VOTING PAGE ===== -->
-    <section class="page active" id="page-vote">
-      <div class="page-hero">
-        <div class="hero-tag">2025 Student Elections</div>
-        <h1 class="hero-title">Your Voice.<br><em>Your Vote.</em></h1>
-        <p class="hero-sub">Cast your ballot for student representatives. Every vote shapes our community.</p>
-      </div>
-
-      <div class="voter-auth-card" id="voterAuth">
-        <div class="card-eyebrow">Step 1 — Voter Verification</div>
-        <h2 class="card-title">Enter Your Student ID</h2>
-        <div class="input-row">
-          <input type="text" id="studentId" class="text-input" placeholder="e.g. STU-20241234" maxlength="15" />
-          <button class="btn-primary" id="verifyBtn">Verify →</button>
+      <div class="sidebar__user" id="sidebar-user">
+        <div class="avatar" id="user-avatar">?</div>
+        <div class="sidebar__user-info">
+          <span id="user-name-display">Not logged in</span>
+          <small id="user-roll">—</small>
         </div>
-        <p class="auth-hint">Your ID is used only to prevent duplicate votes. We do not store personal data.</p>
-        <div class="auth-error hidden" id="authError"></div>
+        <button id="logout-btn" class="icon-btn" title="Logout" style="display:none">↩</button>
       </div>
+    </aside>
 
-      <div class="ballot-section hidden" id="ballotSection">
-        <div class="ballot-header">
-          <div class="ballot-voter-info">
-            Voting as: <strong id="displayStudentId"></strong>
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <button class="hamburger" id="hamburger">☰</button>
+      <span class="mobile-title">VoteHub</span>
+      <div class="mobile-status" id="mobile-status-dot"></div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main" id="main-content">
+
+      <!-- ========== LOGIN PAGE ========== -->
+      <section class="page active" id="page-login">
+        <div class="login-wrap">
+          <div class="login-card">
+            <div class="login-card__header">
+              <div class="login-logo">V</div>
+              <h1>VoteHub</h1>
+              <p>Student Election Portal</p>
+            </div>
+            <div class="login-card__body">
+              <div class="form-group">
+                <label for="login-roll">Roll Number / Student ID</label>
+                <input type="text" id="login-roll" placeholder="e.g. CS2024001" autocomplete="username" />
+              </div>
+              <div class="form-group">
+                <label for="login-name">Full Name</label>
+                <input type="text" id="login-name" placeholder="e.g. Priya Sharma" />
+              </div>
+              <div class="form-group">
+                <label for="login-dept">Department</label>
+                <select id="login-dept">
+                  <option value="">Select Department</option>
+                  <option>Computer Science</option>
+                  <option>Electronics & Communication</option>
+                  <option>Mechanical Engineering</option>
+                  <option>Civil Engineering</option>
+                  <option>Business Administration</option>
+                  <option>Physics</option>
+                  <option>Mathematics</option>
+                </select>
+              </div>
+              <button class="btn btn--primary btn--full" id="login-btn">Enter Portal →</button>
+              <p class="login-hint">Demo: Use roll <strong>ADMIN001</strong> to access admin panel</p>
+            </div>
           </div>
-          <button class="btn-ghost" id="changeVoterBtn">Change ID</button>
-        </div>
-
-        <div class="positions-grid" id="positionsGrid">
-          <!-- Positions injected by JS -->
-        </div>
-
-        <div class="submit-zone">
-          <div class="vote-summary" id="voteSummary">
-            <span id="selectedCount">0</span> of <span id="totalPositions">0</span> positions selected
-          </div>
-          <button class="btn-cast" id="castVoteBtn" disabled>
-            <span class="btn-label">Cast My Vote</span>
-            <span class="btn-arrow">→</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Confirmation Modal -->
-      <div class="modal-overlay hidden" id="confirmModal">
-        <div class="modal-box">
-          <div class="modal-icon">🗳️</div>
-          <h3 class="modal-title">Confirm Your Vote</h3>
-          <p class="modal-desc">Review your selections below. You cannot change your vote after submission.</p>
-          <div class="confirm-list" id="confirmList"></div>
-          <div class="modal-actions">
-            <button class="btn-ghost" id="cancelVoteBtn">Go Back</button>
-            <button class="btn-primary" id="finalCastBtn">Submit Vote</button>
+          <div class="login-features">
+            <div class="feature-chip">🔒 Secure & Encrypted</div>
+            <div class="feature-chip">📡 Works Offline</div>
+            <div class="feature-chip">📲 Installable App</div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Success Screen -->
-      <div class="success-screen hidden" id="successScreen">
-        <div class="success-inner">
-          <div class="success-anim">
-            <svg class="checkmark" viewBox="0 0 52 52">
-              <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
-              <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-            </svg>
+      <!-- ========== ELECTIONS PAGE ========== -->
+      <section class="page" id="page-elections">
+        <div class="page-header">
+          <div>
+            <h2>Active Elections</h2>
+            <p class="page-subtitle">Cast your vote — each student votes once per position</p>
           </div>
-          <h2 class="success-title">Vote Cast!</h2>
-          <p class="success-msg" id="successMsg">Your vote has been recorded successfully.</p>
-          <div class="receipt-box" id="receiptBox"></div>
-          <button class="btn-primary" id="doneBtn">Back to Home</button>
+          <div class="status-badge" id="sync-badge">● Live</div>
+        </div>
+
+        <div class="elections-grid" id="elections-grid">
+          <!-- Dynamically rendered -->
+        </div>
+      </section>
+
+      <!-- ========== VOTE MODAL ========== -->
+      <div class="modal-overlay hidden" id="vote-modal">
+        <div class="modal">
+          <button class="modal__close" id="modal-close">✕</button>
+          <div class="modal__header">
+            <h3 id="modal-election-title">Election Title</h3>
+            <p id="modal-election-desc">Description</p>
+          </div>
+          <div class="modal__candidates" id="modal-candidates">
+            <!-- Dynamic candidate cards -->
+          </div>
+          <div class="modal__footer">
+            <button class="btn btn--primary btn--full" id="submit-vote-btn" disabled>
+              Confirm Vote →
+            </button>
+            <p class="modal-note">⚠ Your vote is final and cannot be changed.</p>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- ===== RESULTS PAGE ===== -->
-    <section class="page" id="page-results">
-      <div class="results-header">
-        <h1 class="page-heading">Live Results</h1>
-        <div class="results-meta">
-          <span id="totalVoters">0 votes cast</span>
-          <button class="btn-ghost btn-sm" id="refreshResults">↻ Refresh</button>
+      <!-- ========== RESULTS PAGE ========== -->
+      <section class="page" id="page-results">
+        <div class="page-header">
+          <div>
+            <h2>Election Results</h2>
+            <p class="page-subtitle">Live tally — updated in real time</p>
+          </div>
         </div>
-      </div>
-      <div class="results-grid" id="resultsGrid">
-        <!-- Results injected by JS -->
-      </div>
-    </section>
-
-    <!-- ===== ADMIN PAGE ===== -->
-    <section class="page" id="page-admin">
-      <div class="admin-lock" id="adminLock">
-        <div class="lock-icon">🔐</div>
-        <h2 class="lock-title">Admin Access</h2>
-        <p class="lock-sub">Enter admin password to manage the election.</p>
-        <div class="input-row">
-          <input type="password" id="adminPass" class="text-input" placeholder="Password" />
-          <button class="btn-primary" id="adminLoginBtn">Enter</button>
+        <div id="results-container">
+          <!-- Dynamic results -->
         </div>
-        <p class="lock-hint">Default password: <code>admin123</code></p>
-        <div class="auth-error hidden" id="adminError"></div>
-      </div>
+      </section>
 
-      <div class="admin-panel hidden" id="adminPanel">
-        <div class="admin-topbar">
-          <h2 class="panel-title">Admin Panel</h2>
-          <button class="btn-danger-sm" id="adminLogoutBtn">Logout</button>
+      <!-- ========== HISTORY PAGE ========== -->
+      <section class="page" id="page-history">
+        <div class="page-header">
+          <div>
+            <h2>My Voting History</h2>
+            <p class="page-subtitle">A record of your participation</p>
+          </div>
         </div>
+        <div id="history-container">
+          <!-- Dynamic history -->
+        </div>
+      </section>
 
-        <div class="admin-tabs">
-          <button class="tab-btn active" data-tab="manage">Manage Candidates</button>
-          <button class="tab-btn" data-tab="export">Export & Reset</button>
+      <!-- ========== ADMIN PAGE ========== -->
+      <section class="page" id="page-admin">
+        <div class="page-header">
+          <div>
+            <h2>Admin Panel</h2>
+            <p class="page-subtitle">Manage elections and candidates</p>
+          </div>
         </div>
 
-        <div class="tab-content active" id="tab-manage">
-          <div class="admin-section">
-            <h3 class="section-title">Add Candidate</h3>
-            <div class="admin-form">
-              <select class="text-input" id="candidatePosition">
-                <option value="">Select Position...</option>
-                <option value="President">Student Body President</option>
-                <option value="Vice President">Vice President</option>
-                <option value="Secretary">Secretary</option>
-                <option value="Treasurer">Treasurer</option>
-                <option value="Cultural Secretary">Cultural Secretary</option>
+        <div class="admin-grid">
+          <!-- Create Election -->
+          <div class="admin-card">
+            <h3>➕ Create New Election</h3>
+            <div class="form-group">
+              <label>Election Title</label>
+              <input type="text" id="new-election-title" placeholder="e.g. Student Union President 2025" />
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <input type="text" id="new-election-desc" placeholder="Brief description" />
+            </div>
+            <div class="form-group">
+              <label>Deadline</label>
+              <input type="datetime-local" id="new-election-deadline" />
+            </div>
+            <button class="btn btn--primary" id="create-election-btn">Create Election</button>
+          </div>
+
+          <!-- Add Candidate -->
+          <div class="admin-card">
+            <h3>👤 Add Candidate</h3>
+            <div class="form-group">
+              <label>Select Election</label>
+              <select id="candidate-election-select">
+                <option value="">Choose election…</option>
               </select>
-              <input type="text" class="text-input" id="candidateName" placeholder="Full Name" />
-              <input type="text" class="text-input" id="candidateClass" placeholder="Class / Year (e.g. B.Tech 3rd Year)" />
-              <input type="text" class="text-input" id="candidateSlogan" placeholder="Campaign Slogan (optional)" />
-              <button class="btn-primary" id="addCandidateBtn">+ Add Candidate</button>
+            </div>
+            <div class="form-group">
+              <label>Candidate Name</label>
+              <input type="text" id="candidate-name" placeholder="Full name" />
+            </div>
+            <div class="form-group">
+              <label>Department / Manifesto</label>
+              <input type="text" id="candidate-manifesto" placeholder="e.g. CS Dept — Innovation & Inclusion" />
+            </div>
+            <button class="btn btn--accent" id="add-candidate-btn">Add Candidate</button>
+          </div>
+
+          <!-- Stats -->
+          <div class="admin-card admin-card--wide">
+            <h3>📊 Participation Stats</h3>
+            <div id="admin-stats" class="admin-stats">
+              <!-- Dynamic stats -->
             </div>
           </div>
 
-          <div class="admin-section">
-            <h3 class="section-title">Current Candidates</h3>
-            <div class="candidates-table" id="candidatesTable">
-              <!-- Injected by JS -->
-            </div>
+          <!-- Reset -->
+          <div class="admin-card admin-card--danger">
+            <h3>⚠ Danger Zone</h3>
+            <p>Reset all election data. This cannot be undone.</p>
+            <button class="btn btn--danger" id="reset-all-btn">Reset All Data</button>
           </div>
         </div>
+      </section>
 
-        <div class="tab-content" id="tab-export">
-          <div class="admin-section">
-            <h3 class="section-title">Election Statistics</h3>
-            <div class="stats-grid" id="adminStats"></div>
-          </div>
-          <div class="admin-section">
-            <h3 class="section-title">Voted Students</h3>
-            <div class="voted-list" id="votedList"></div>
-          </div>
-          <div class="admin-section danger-zone">
-            <h3 class="section-title danger-title">⚠️ Danger Zone</h3>
-            <div class="danger-actions">
-              <button class="btn-outline" id="exportBtn">📥 Export Results (JSON)</button>
-              <button class="btn-danger" id="resetVotesBtn">🗑️ Reset All Votes</button>
-              <button class="btn-danger" id="resetAllBtn">💥 Reset Everything</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    </main>
+  </div>
 
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <span>EduVote © 2025 — Student Election System</span>
-      <span class="footer-offline-note" id="footerOfflineNote"></span>
-    </div>
-  </footer>
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
 
   <script src="app.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').then(reg => {
-        console.log('SW registered', reg.scope);
-      }).catch(err => console.log('SW error', err));
-    }
-  </script>
 </body>
 </html>
